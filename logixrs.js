@@ -8,7 +8,7 @@ let timestamp = dateOb.toLocaleString('en-GB', { timeZone: 'UTC' });
 let ts = dateOb.getTime();
 
 // file process are local to script directory
-process.chdir( '/Users/dd/ixrs_tool' );
+process.chdir( __dirname );
 
 // which servers should we process?
 const serverList = fs.readFileSync('./servers.config', {encoding:'utf8', flag:'r'});
