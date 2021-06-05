@@ -15,6 +15,16 @@ const serverList = fs.readFileSync('./servers.config', {encoding:'utf8', flag:'r
 const servers = JSON.parse(serverList);
 const serversToProcess = Object.keys(servers);
 
+// Polyfill for node 10
+Promise.allSettled = Promise.allSettled || ((promises) => Promise.all(promises.map(p => p
+  .then(value => ({
+    status: 'fulfilled', value
+  }))
+  .catch(reason => ({
+    status: 'rejected', reason
+  }))
+)));
+
 /**
  * Log changes to output file
  * @param {string} text The text to log.
