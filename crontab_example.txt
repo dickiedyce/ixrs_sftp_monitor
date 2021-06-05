@@ -1,1 +1,2 @@
 0,15,30,45 * * * *  scl enable rh-nodejs10 "node ixrs/logixrs.js >> ~/cron.log 2>&1"
+1,16,31,46 * * * *  sudo cp ixrs/ixrs.json "/opt/FileMaker/FileMaker Server/HTTPServer/htdocs/httpsRoot"

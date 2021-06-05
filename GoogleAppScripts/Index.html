@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&display=swap" rel="stylesheet">
+    <!-- Import common stylesheet via templated HTML -->
+    <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
+  </head>
+  <body>
+    <h1 id="title">IxRS Arrivals <span id="lastrefresh" class="clock"></span></h1>
+
+    <div class="block result-display" id="results">
+      <div class="hidden" id="error-message">
+        There is an issue retrieving results.
+      </div>
+    </div>
+
+    <table id="results-table" class="hidden">
+      <thead>
+      <tr><th>Vendor</th><th>Study</th><th>Updated</th><th>Age (hrs)</th><th>Size (kb)</th></tr>
+      </thead>
+      <tbody id="results-body"></tbody>
+    </table>
+
+    <p id="updateinfo" class="hidden">Last Update</p>
+    <p id="lastupdate" class="hidden"></p>
+
+    <!-- Pass template data to imported JavaScript. -->
+    <script>
+      var thisRun = <?= thisRun ?>;
+      var lastRun = <?= lastRun ?>;
+      var runs = <?= runs ?>;
+    </script>
+
+    <!-- Import javascript via templated HTML -->
+    <?!= HtmlService.createHtmlOutputFromFile('JavaScript').getContent(); ?>
+
+  </body>
+</html>
