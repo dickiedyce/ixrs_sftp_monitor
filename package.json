@@ -1,0 +1,16 @@
+{
+  "name": "logixrs",
+  "version": "1.0.0",
+  "description": "Parse changes in SFTP File Lists",
+  "main": "logixrs.js",
+  "scripts": {
+    "test": "test",
+    "start": "node logixrs.js"
+  },
+  "author": "Richard Dyce",
+  "license": "ISC",
+  "dependencies": {
+    "sqlite3": "^5.0.2",
+    "ssh2-sftp-client": "^6.0.1"
+  }
+}

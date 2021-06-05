@@ -1,0 +1,12 @@
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Project specific
+servers.config
+node_modules
+package-lock.json
+ixrs.json
+IxRS_tracking_data.csv
+IxRS_tracking_log.txt
