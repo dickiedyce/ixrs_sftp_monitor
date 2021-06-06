@@ -77,3 +77,62 @@ An example JSON file.
   "lastupdate":1622897088115
 }
 ````
+
+## Appendix A: Install on Centos
+
+Here are some basic instructions for installing on an Vanilla Centos platform. Note version 1.o.3 onwards provides a basic http server for servint the JSON data file. An alternative approach (shown in step 4,) is to use an existing server to serve the file, via a `cp` cron job.
+
+1. Install some basic tools:
+
+    ````bash
+    sudo yum install unzip
+    sudo yum install centos-release-scl-rh
+    sudo yum install rh-nodejs10
+    ````
+
+2. Download the latest source files:
+
+    ````bash
+    curl -L https://github.com/dickiedyce/ixrs_sftp_monitor/archive/refs/tags/v1.0.1.zip -o ixrs.zip
+    unzip ixrs.zip
+    mv ixrs_sftp_monitor-1.0.1/ ixrs
+    cd ixrs
+    ````
+
+3. Enable Node, and install the dependencies:
+
+    ````bash
+    scl enable rh-nodejs10 bash
+    npm install
+    cat >> servers.config <<'EOF'
+    {
+      "vendor1": {
+        "host": "sftp.vendor.com",
+        "port": "22",
+        "username": "user1",
+        "password": "password1"
+      },
+      "vendor2": {
+        "host": "sftp.vendor2.com",
+        "port": "22",
+        "username": "user2",
+        "password": "password2"
+      }
+    }
+    EOF
+    cat servers.config
+    exit
+    ````
+
+4. Edit the crontab file:
+
+    ````bash
+    crontab -e
+    ````
+
+    Example crontab, showing script execution, and copying of ixrs data to suitable server folder:
+
+    ````crontab
+    0,15,30,45 * * * *  scl enable rh-nodejs10 "node ixrs/logixrs.js >> ~/cron.log 2>&1"
+    1,16,31,46 * * * *  sudo cp ixrs/ixrs.json "/opt/HTTPServer/htdocs/httpsRoot"
+    ````
