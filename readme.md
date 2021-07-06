@@ -4,9 +4,10 @@ Monitor the status of IxRS feeds, provided via SFTP, log the changes, and
 maintain a static file of IxRS feed state.
 
 The script querius vendors SFTP servers, finds matching studies, and
-rertrieves their sizes, and modification dates. Previously stored details are
-used to determine the 'freshness' of each file, with files older than 6 hours
-marked as stale (`status = 'B'`).
+rertrieves their sizes, modification dates, downloads, and validates the XML.
+
+Previously stored details are used to determine the 'freshness' of each file,
+with files older than 6 hours marked as stale (`status = 'B'`).
 
 ## Config file
 
@@ -39,11 +40,13 @@ An example log file:
 
 ````text
 ==========================
-Provider: vendor1; 05/06/2021, 12:44:48
-Provider: vendor2; 05/06/2021, 12:44:48
+Run: 06/07/2021, 21:27:45
 No study data found for vendor1.
 Matching vendor2 study data found for 3 studies:
 xPnnnn1, xPnnnn2, xPnnnn3
+### Parsing error: "IXRS_VND2_xPnnnn2_2021-07-06T1200.xml"
+Invalid character in entity name; Line: 839; Column: 50; Char:
+TypeError: Cannot read property 'length' of undefined
 ````
 
 ### JSON File
@@ -59,6 +62,9 @@ An example JSON file.
       "size":427062,
       "modified":1622617441000,
       "vendor":"vendor1",
+      "isValid": true,
+      "countries": 3,
+      "sites": 42,
       "updated":"02 Jun",
       "age":"77:40",
       "status":"B"
@@ -70,6 +76,9 @@ An example JSON file.
       "size":449928,
       "modified":1622891500000,
       "vendor":"vendor2",
+      "isValid": false,
+      "countries": 0,
+      "sites": 0,
       "updated":"05 Jun",
       "age":"01:33",
       "status":"A"}
