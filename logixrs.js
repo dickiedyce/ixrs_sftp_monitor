@@ -83,7 +83,7 @@ serversToProcess.forEach( vendor => {
       // study number has a P as the second character
       const filelist = await sftp.list('/',fileRegex);
 
-      if (filelist.length > 0) {
+      if (filelist !== undefined && filelist.length !== undefined && filelist.length > 0) {
         log('Matching '+vendor+' study data found for ' +
           ( filelist.length === 1 ? '1 study: ' : filelist.length + ' studies: ')
           );
@@ -92,54 +92,71 @@ serversToProcess.forEach( vendor => {
         log('No study data found for '+vendor+'.');
       };
 
-      // for each matching file, construct the details and save it
-      for (let index = 0; index < filelist.length; index++) {
-        const file = filelist[index];
-        const names = file.name.match(studyRegex);
-        const details = { study:names[0],
-          filename:file.name,
-          size:file.size,
-          modified:file.modifyTime,
-          vendor,
-          isValid:false,
-          countries:0,
-          sites: 0 };
-        const remoteFile = file.name; // remote file dir path
-        const localFile = file.name; // local file dir path
+      if (filelist !== undefined && filelist.length !== undefined && filelist.length > 0) {
+        // for each matching file, construct the details and save it
+        for (let index = 0; index < filelist.length; index++) {
+          const file = filelist[index];
+          const names = file.name.match(studyRegex);
+          const details = { study:names[0],
+            filename:file.name,
+            size:file.size,
+            modified:file.modifyTime,
+            vendor,
+            isValid:false,
+            error:null,
+            countries:0,
+            sites: 0 };
+          const remoteFile = file.name; // remote file dir path
+          const localFile = file.name; // local file dir path
 
-        let data = null;
+          let data = null;
 
-        try { // download file, read into memory, then delete it
-          await sftp.fastGet(remoteFile, localFile);
-          data = fs.readFileSync(localFile);
-          fs.rmSync(localFile)
-        } catch (err) {
-          log('### Download error :' + localFile);
+          try { // download file
+            await sftp.fastGet(remoteFile, localFile);
+          } catch (err) {
+            log('### Download error :' + localFile);
+          }
+
+          try { // read into memory
+            data = fs.readFileSync(localFile);
+          } catch (err) {
+            log('### Read error :' + localFile);
+          }
+
+          try { // delete file
+            fs.rmSync(localFile);
+          } catch (err) {
+            log('### Deletion error :' + localFile);
+          }
+
+          if (data !== null) {
+            parser.parseString(data, function (err, result) {
+              if(err === null) {
+                details.isValid = true;
+                details.error = null;
+                const countryList = result
+                  .GenentechXSD
+                  .Header_Information[0]
+                  .Study_Information[0]
+                  .Country_Information || [];
+                if (countryList !== undefined) {
+                  details.countries = countryList.length || 0;
+                  details.sites = countryList.reduce(function (result, country) {
+                    return result + ( country.Site_Information !== undefined ? country.Site_Information.length : 0);
+                  }, 0);
+                }
+              } else {
+                details.error = err.message.split("\n").join('; ');
+                log('### Parsing error: "' + localFile + '" ' + err.message.split("\n").join('; '));
+              }
+            });
+          }
+
+          IxRSdata.studies[details.study] = details;
         }
-
-        if (data !== null) {
-          parser.parseString(data, function (err, result) {
-            if(err === null) {
-              details.isValid = true;
-              const countryList = result
-                .GenentechXSD
-                .Header_Information[0]
-                .Study_Information[0]
-                .Country_Information;
-              details.countries = countryList.length || 0;
-              details.sites = countryList.reduce(function (result, country) {
-                return result + (country.Site_Information.length || 0);
-              }, 0);
-            } else {
-              log('### Parsing error: "' + localFile + '" ' + err.message.split("\n").join('; '));
-            }
-          });
-        }
-
-        IxRSdata.studies[details.study] = details;
       }
     })
-    .catch(err => log(err))
+    .catch(err => { log('### Error: "' + localFile + '" ' + err.message.split("\n").join('; '));} )
     .finally(() => {
       sftp.end();
 
