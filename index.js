@@ -1,10 +1,16 @@
 const express = require('express');
-const app = express();
+const cors = require('cors');
+const path = require('path');
 const fs = require('fs');
 
-app.get('/', (req, res) => {
-  res.send('IxRS Server');
-})
+const app = express();
+
+app.use(cors());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
+// add routes for public folder, /codh and /pdil APIs
+app.get(app.use(express.static(path.join(__dirname, 'public'))));
 
 app.get('/api/ixrs', (req, res) => {
   fs.readFile('./ixrs.json', (err, json) => {
@@ -13,4 +19,5 @@ app.get('/api/ixrs', (req, res) => {
   });
 });
 
-app.listen(3000, () => console.log('Server running on port 3000'));
+const port = process.env.PORT || 80;
+server = app.listen(port, () => console.log(`Server running on port ${port}`));

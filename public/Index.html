@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title></title>
     <base target="_top">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@500&display=swap" rel="stylesheet">
-    <!-- Import common stylesheet via templated HTML -->
-    <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
+    <link rel="stylesheet" href="style.css">
   </head>
   <body>
     <h1 id="title">IxRS Arrivals <span id="lastrefresh" class="clock"></span></h1>
@@ -29,15 +29,8 @@
     <p id="additionaltitle" class="hidden">Additional Info</p>
     <p id="additionalinfo" class="hidden"></p>
 
-    <!-- Pass template data to imported JavaScript. -->
-    <script>
-      var thisRun = <?= thisRun ?>;
-      var lastRun = <?= lastRun ?>;
-      var runs = <?= runs ?>;
-    </script>
-
-    <!-- Import javascript via templated HTML -->
-    <?!= HtmlService.createHtmlOutputFromFile('JavaScript').getContent(); ?>
+    <!-- Update the display after page loads -->
+    <script src="app.js"></script>
 
   </body>
 </html>
